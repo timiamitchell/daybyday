@@ -5,6 +5,7 @@ import React from 'react'
 import dayjs from 'dayjs'
 import ColorList from '../components/ColorList'
 import { useFonts } from 'expo-font'
+import logo from "/Users/timiamitchell/daybyday/assets/images/logo.png";
 
 const settings = () => {
     return (
@@ -13,5 +14,7 @@ const settings = () => {
         </View>
       )
 }
+
+
 
 export default settings
