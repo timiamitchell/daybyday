@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Dimensions, ImageBackground } from 'react-native'
+import { View, Text, Image, TextInput, StyleSheet, TouchableOpacity, Dimensions, ImageBackground } from 'react-native'
 import * as SplashScreen from 'expo-splash-screen';
 import React from 'react'
 import dayjs from 'dayjs'
@@ -52,6 +52,10 @@ const TextEntryForm = () => (
     <TouchableOpacity style={styles.submitButton}>
       <Text style={styles.submitButtonText}>Enter</Text>
     </TouchableOpacity>
+    <Image
+        style={styles.logo}
+        source={require('/Users/timiamitchell/daybyday/assets/images/logo.png')}
+      />
   </View>
 );
 
@@ -75,7 +79,7 @@ const add = () => {
       indicatorStyle={styles.tabIndicator}
       style={styles.tabBar}
       labelStyle={styles.tabLabel}
-      activeColor="#3b82f6"
+      activeColor='#C58940'
       inactiveColor="#9ca3af"
     />
   );
@@ -90,13 +94,14 @@ const add = () => {
       renderTabBar={renderTabBar}
     />
     
+    
   );
 };
 
 const styles = StyleSheet.create({
 
   addContainer: {
-    marginVertical: 110,
+    paddingVertical: 110,
     backgroundColor: '#FFFDF4'
   },
 
@@ -116,13 +121,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF7DA',
   },
   multilineInput: {
-    height: 100,
+    height: 40,
     textAlignVertical: 'top',
   },
   submitButton: {
     backgroundColor: '#C58940',
-    padding: 16,
-    borderRadius: 8,
+    padding: 5,
+    borderRadius: 10,
     alignItems: 'center',
   },
   submitButtonText: {
@@ -141,6 +146,17 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#C58940',
   },
+
+  logo: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    bottom: 571,
+    left: 143,
+    width: 75,
+    height: 75,
+    resizeMode: 'contain'
+},
 });
 
 export default add;

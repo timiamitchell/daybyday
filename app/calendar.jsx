@@ -8,7 +8,23 @@ import ColorList from '../components/ColorList';
 import { useFonts } from 'expo-font';
 import logo from "/Users/timiamitchell/daybyday/assets/images/logo.png";
 
+
+
 const calendar = () => {
+
+  const events = {
+    '2025-02-27': [
+      { id: '1', title: 'No events scheduled for today.' },
+    ],
+  };
+
+  const renderEventItem = ({ item }) => (
+    <View style={styles.eventItem}>
+      <Text style={styles.eventTitle}>{item.title}</Text>
+      {item.description ? <Text style={styles.eventDescription}>{item.description}</Text> : null}
+    </View>
+  );
+  
   const [selectedDate, setSelectedDate] = useState(null);
   const [currentMonth, setCurrentMonth] = useState(new Date());
 
@@ -16,7 +32,26 @@ const calendar = () => {
     'AbhayaLibre-Regular': require('/Users/timiamitchell/daybyday/assets/fonts/AbhayaLibre-Regular.ttf'),
     'Inter-VariableFont_opsz,wght': require('/Users/timiamitchell/daybyday/assets/fonts/Inter-VariableFont_opsz,wght.ttf'),
     'AbhayaLibre-SemiBold': require('/Users/timiamitchell/daybyday/assets/fonts/AbhayaLibre-SemiBold.ttf'),
+
   });
+
+  if (!loaded) {
+    return null; // Render nothing until fonts are loaded
+  }
+
+  const [fontsLoaded, setFontsLoaded] = useState(false);
+
+useEffect(() => {
+  if (loaded) {
+    setFontsLoaded(true);
+  }
+}, [loaded]);
+
+if (!fontsLoaded) {
+  return null; // Prevent rendering until fonts are loaded
+}
+
+  
 
   const handleDatePress = (date) => {
     setSelectedDate(date);
@@ -57,6 +92,7 @@ const calendar = () => {
       
 
     return (
+      
       <View style={styles.grid}>
         {days.map((day, index) => {
           const isCurrentMonth = day.getMonth() === currentMonth.getMonth();
@@ -65,25 +101,24 @@ const calendar = () => {
 
           return (
             <TouchableOpacity
-              key={index}
-              style={[
-                styles.day,
-                isSelected && styles.selectedDay,
-                !isCurrentMonth && styles.outsideDay,
-              ]}
-              onPress={() => handleDatePress(dateString)}
-            >
-              <Text
-                style={[
-                  styles.dayText,
-                  isSelected && styles.selectedDayText,
-                  !isCurrentMonth && styles.outsideDayText,
-                ]}
-              >
-                {day.getDate()}
-              </Text>
-            </TouchableOpacity>
-
+        key={index}
+        style={[
+          styles.day,
+          isSelected && styles.selectedDay,
+          !isCurrentMonth && styles.outsideDay,
+        ]}
+        onPress={() => handleDatePress(dateString)}
+      >
+        <Text
+          style={[
+            styles.dayText,
+            isSelected && styles.selectedDayText,
+            !isCurrentMonth && styles.outsideDayText,
+          ]}
+        >
+          {day.getDate()}
+        </Text>
+      </TouchableOpacity>
           );
         })}
       </View>
@@ -93,19 +128,34 @@ const calendar = () => {
   return (
     <View style={styles.container}>
     <View style={styles.calendarContainer}>
-    <View style={styles.header}>
-      <TouchableOpacity onPress={() => changeMonth(-1)}>
-        <Text style={styles.navText}>{'<'}</Text>
-      </TouchableOpacity>
-      <Text style={styles.monthTitle}>
-        {currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
-      </Text>
-      <TouchableOpacity onPress={() => changeMonth(1)}>
-        <Text style={styles.navText}>{'>'}</Text>
-      </TouchableOpacity>
-    </View>
-    {renderCalendar()}
+  <View style={styles.header}>
+    <TouchableOpacity onPress={() => changeMonth(-1)}>
+      <Text style={styles.navText}>{'<'}</Text>
+    </TouchableOpacity>
+    <Text style={styles.monthTitle}>
+      {currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+    </Text>
+    <TouchableOpacity onPress={() => changeMonth(1)}>
+      <Text style={styles.navText}>{'>'}</Text>
+    </TouchableOpacity>
   </View>
+  
+  {/* Weekdays Header */}
+  <View style={styles.weekHeader}>
+    {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day, index) => (
+      <Text key={index} style={styles.weekHeaderText}>
+        {day}
+      </Text>
+    ))}
+  </View>
+
+  {/* Calendar Grid */}
+  {renderCalendar()}
+</View>
+<Image
+        style={styles.logo}
+        source={require('/Users/timiamitchell/daybyday/assets/images/logo.png')}
+      />
   </View>
   
   );
@@ -119,10 +169,15 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#FFFDF4',
     padding: 20,
+    
   },
 
   calendarContainer: {
-    marginTop: 110,
+    flex: 1,
+    justifyContent: 'flex-start',  // Align items at the top of the container
+    alignItems: 'center',         // Center items horizontally
+    marginHorizontal: 10,
+    marginTop: 120,   // Ensure enough space at the top
   },
 
   header: {
@@ -130,53 +185,65 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 15,
+
   },
 
   navText: {
     fontSize: 18,
+    paddingHorizontal: 5,
+
   },
   
   monthTitle: {
+    fontFamily: 'AbhayaLibre-SemiBold',
     fontSize: 40,
     textTransform: 'uppercase',
     color: "#C58940",
-    fontFamily: 'AbhayaLibre-SemiBold',
     textAlign: 'center',
     marginBottom: 0,
   },
 
   grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginLeft: 5,
-  },
+    flexDirection: 'row', // Ensures rows of cells
+    flexWrap: 'wrap', // multiple rows
+    width: '100%', // for consistent layout
 
+  },
+  
   calendarGrid: {
     marginBottom: 10,
+
   },
+
   weekHeader: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    fontFamily: 'Inter-VariableFont_opsz,wght.ttf',
-    marginBottom: 8,
+    justifyContent: 'space-around',
+    marginBottom: 10,
   },
+
   weekHeaderText: {
     flex: 1,
     textAlign: 'center',
-    color: "#C58940",
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#C58940',
+    textTransform: 'uppercase'
   },
+  
   weekRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 8,
   },
+
   day: {
-    width: `${100 / 7}%`,
-    aspectRatio: .5,
-    justifyContent: 'center',
+    width: '14.285%',
+    aspectRatio: 1,
+    paddingVertical: 14.285,
     alignItems: 'center',
-    borderWidth: .4,
-    borderColor: "#C58940", 
+    alignContent: 'center',
+    borderColor: "#C58940",
+    borderWidth: .5, 
     backgroundColor: '#FFFDF4',
   },
 
@@ -190,7 +257,10 @@ const styles = StyleSheet.create({
 
   dayText: {
     fontSize: 14,
-    color: "#C58940",
+    color: '#C58940',
+    textAlign: 'center', // aligns text horizontally within the cell
+    textAlignVertical: 'center',
+
   },
   
   selectedDayText: {
@@ -237,7 +307,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    bottom: 578,
+    bottom: 573.5,
     left: 143,
     width: 75,
     height: 75,
