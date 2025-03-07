@@ -6,7 +6,7 @@ import React from 'react';
 import dayjs from 'dayjs';
 import ColorList from '../components/ColorList';
 import { useFonts } from 'expo-font';
-import logo from "/Users/timiamitchell/daybyday/assets/images/logo.png";
+import { useFocusEffect } from '@react-navigation/native';
 
 
 
@@ -28,16 +28,22 @@ const calendar = () => {
   const [selectedDate, setSelectedDate] = useState(null);
   const [currentMonth, setCurrentMonth] = useState(new Date());
 
+  const [displayDate, setDisplayDate] = useState(null);
+
+  useEffect(() => {
+    if (selectedDate) {
+    setDisplayDate(selectedDate);
+    }
+}, [selectedDate]);
+
+  
+  
   const [loaded, error] = useFonts({
     'AbhayaLibre-Regular': require('/Users/timiamitchell/daybyday/assets/fonts/AbhayaLibre-Regular.ttf'),
     'Inter-VariableFont_opsz,wght': require('/Users/timiamitchell/daybyday/assets/fonts/Inter-VariableFont_opsz,wght.ttf'),
     'AbhayaLibre-SemiBold': require('/Users/timiamitchell/daybyday/assets/fonts/AbhayaLibre-SemiBold.ttf'),
-
+    
   });
-
-  if (!loaded) {
-    return null; // Render nothing until fonts are loaded
-  }
 
   const [fontsLoaded, setFontsLoaded] = useState(false);
 
@@ -51,11 +57,13 @@ if (!fontsLoaded) {
   return null; // Prevent rendering until fonts are loaded
 }
 
-  
+const handleDatePress = (date) => {
+  setSelectedDate(date); 
+  setDisplayDate(date); // Ensure immediate UI update
+};
 
-  const handleDatePress = (date) => {
-    setSelectedDate(date);
-  };
+
+
 
   const changeMonth = (direction) => {
     const newMonth = new Date(currentMonth.setMonth(currentMonth.getMonth() + direction));
@@ -65,31 +73,34 @@ if (!fontsLoaded) {
   const getDaysInMonth = (date) => {
     const year = date.getFullYear();
     const month = date.getMonth();
-
-    const firstDay = new Date(year, month, 1);
-    const lastDay = new Date(year, month + 1, 0);
-    const previousMonthDays = new Date(year, month, 0).getDate();
-
+  
+    // First and last days of the current month
+    const firstDayOfMonth = new Date(year, month, 1);
+    const lastDayOfMonth = new Date(year, month + 1, 0);
+  
+    // Calculate the start of the calendar grid (Sunday before the first day of the month)
+    const startDay = new Date(firstDayOfMonth);
+    startDay.setDate(startDay.getDate() - startDay.getDay());
+  
+    // Calculate the end of the calendar grid (Saturday after the last day of the month)
+    const endDay = new Date(lastDayOfMonth);
+    endDay.setDate(endDay.getDate() + (6 - endDay.getDay()));
+  
+    // Generate all dates from startDay to endDay
     const days = [];
-    let currentDay = new Date(firstDay);
-
-    // Fill the days from the previous month
-    while (currentDay.getDay() !== 0) {
-      currentDay = new Date(currentDay.setDate(currentDay.getDate() - 1));
-    }
-
-    // Generate all days until the Saturday of the last week
-    while (currentDay <= lastDay || currentDay.getDay() !== 6) {
+    let currentDay = new Date(startDay);
+    while (currentDay <= endDay) {
       days.push(new Date(currentDay));
-      currentDay = new Date(currentDay.setDate(currentDay.getDate() + 1));
+      currentDay.setDate(currentDay.getDate() + 1);
     }
-
+  
     return days;
   };
+  
 
   const renderCalendar = () => {
     const days = getDaysInMonth(currentMonth);
-      
+
 
     return (
       
@@ -97,7 +108,7 @@ if (!fontsLoaded) {
         {days.map((day, index) => {
           const isCurrentMonth = day.getMonth() === currentMonth.getMonth();
           const dateString = day.toISOString().split('T')[0];
-          const isSelected = selectedDate === dateString;
+          const isSelected = selectedDate && selectedDate === dateString;
 
           return (
             <TouchableOpacity
@@ -107,7 +118,12 @@ if (!fontsLoaded) {
           isSelected && styles.selectedDay,
           !isCurrentMonth && styles.outsideDay,
         ]}
-        onPress={() => handleDatePress(dateString)}
+        onPress={() => {
+          handleDatePress(dateString);
+          setDisplayDate(dateString);
+        }}
+        
+        
       >
         <Text
           style={[
@@ -121,12 +137,25 @@ if (!fontsLoaded) {
       </TouchableOpacity>
           );
         })}
+        
       </View>
     );
   };
 
+  const formatDate = (dateString) => {
+    const date = new Date(dateString); // Convert to Date object
+    const options = { month: 'long', day: 'numeric', year: 'numeric' };
+    return date.toLocaleDateString('en-US', options); 
+  };
+  
+  
+
   return (
     <View style={styles.container}>
+<Image
+        style={styles.logo}
+        source={require('/Users/timiamitchell/daybyday/assets/images/logo.png')}
+      />
     <View style={styles.calendarContainer}>
   <View style={styles.header}>
     <TouchableOpacity onPress={() => changeMonth(-1)}>
@@ -152,10 +181,14 @@ if (!fontsLoaded) {
   {/* Calendar Grid */}
   {renderCalendar()}
 </View>
-<Image
-        style={styles.logo}
-        source={require('/Users/timiamitchell/daybyday/assets/images/logo.png')}
-      />
+    {/* Selected Date Message */}
+    <Text style={styles.infoText}>
+  {displayDate
+    ? `No events scheduled for ${formatDate(displayDate)}.`
+    : 'Select a date to see details.'}
+    </Text>
+
+
   </View>
   
   );
@@ -174,7 +207,7 @@ const styles = StyleSheet.create({
 
   calendarContainer: {
     flex: 1,
-    justifyContent: 'flex-start',  // Align items at the top of the container
+    justifyContent: 'flex-start',  
     alignItems: 'center',         // Center items horizontally
     marginHorizontal: 10,
     marginTop: 120,   // Ensure enough space at the top
@@ -303,15 +336,22 @@ const styles = StyleSheet.create({
     marginTop: 16,
   },
 
+  infoText: {
+    color: "#C58940",
+    fontFamily:'Inter-VariableFont_opsz,wght',
+    textAlign: 'left',
+    fontSize: 15,
+    paddingHorizontal: 10,
+  },
+
   logo: {
-    flex: 1,
-    alignItems: 'center',
+    position: "absolute",
     justifyContent: 'center',
-    bottom: 573.5,
-    left: 143,
+    top: 60,
     width: 75,
     height: 75,
-    resizeMode: 'contain'
+    resizeMode: 'contain',
+    alignSelf: "center",
 },
 
 });

@@ -47,6 +47,9 @@ export default function Home() {
         <Text 
           style={styles.date2}> {date.format("MMMM DD")}
         </Text>
+        <Text 
+          style={styles.text}> {" • There are no events schedueled for today."}
+        </Text>
         <Image
         style={styles.logo}
         source={require('/Users/timiamitchell/daybyday/assets/images/logo.png')}
@@ -76,6 +79,19 @@ const styles = StyleSheet.create({
     marginTop: 0,
   },
 
+  text: {
+    color: "#C58940",
+    fontFamily:'Inter-VariableFont_opsz,wght',
+    textAlign: 'left',
+    fontSize: 15,
+    fontWeight: "500",
+    top: 10,
+    paddingHorizontal: 20,
+    height: 30,
+    paddingVertical: 25,
+    marginTop: 0,
+  },
+
     date2: {
       color: "#C58940",
       textTransform: 'uppercase',
@@ -85,20 +101,19 @@ const styles = StyleSheet.create({
       paddingHorizontal: 20,
       height: 20,
       paddingVertical: 70,
-      fontSize: 62,
+      fontSize: 60,
       fontWeight: "500",
       marginTop: 0,
 
   },
   
     logo: {
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
-        bottom: 430,
-        left: 163,
-        width: 75,
-        height: 75,
-        resizeMode: 'contain'
+      position: "absolute",
+      justifyContent: 'center',
+      top: 60,
+      width: 75,
+      height: 75,
+      resizeMode: 'contain',
+      alignSelf: "center",
   },
 });
